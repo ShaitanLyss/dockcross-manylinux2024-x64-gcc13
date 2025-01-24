@@ -48,10 +48,14 @@ ARG GCC_VERSION
 COPY --from=builder /opt/gcc-${GCC_VERSION} /opt/gcc-${GCC_VERSION}
 
 # Set up GCC environment variables for proper paths in execution
+ENV CROSS_ROOT /opt/gcc-${GCC_VERSION}/bin
 ENV PATH="/opt/gcc-${GCC_VERSION}/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/opt/gcc-${GCC_VERSION}/lib64:${LD_LIBRARY_PATH}"
 ENV CC=/opt/gcc-${GCC_VERSION}/bin/gcc
 ENV CXX=/opt/gcc-${GCC_VERSION}/bin/g++
 ENV LD=/opt/gcc-${GCC_VERSION}/bin/ld
+
+COPY Toolchain.cmake ${CROSS_ROOT}/../lib/
+ENV CMAKE_TOOLCHAIN_FILE ${CROSS_ROOT}/../lib/Toolchain.cmake
 
 
