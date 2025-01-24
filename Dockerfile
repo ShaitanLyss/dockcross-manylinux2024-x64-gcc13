@@ -30,15 +30,9 @@ RUN ./contrib/download_prerequisites && \
   mkdir build && cd build && \
   # Configure only for the C++ language
   ../configure --disable-multilib --enable-languages=c++ --prefix=/opt/gcc-${GCC_VERSION} --disable-debug && \
-  make -j$(nproc) && \
-  make install
+  make -j$(nproc)
 
-# Strip binaries to reduce size
-RUN strip --strip-all /opt/gcc-${GCC_VERSION}/bin/* && \
-  # Remove static libraries and documentation
-  find /opt/gcc-${GCC_VERSION} -name '*.a' -delete && \
-  rm -rf /opt/gcc-${GCC_VERSION}/share/doc
-
+RUN make install-strip
 
 # Final stage: assembling clean environment for runtime use with GCC
 FROM dockcross/manylinux2014-x64:latest
