@@ -7,36 +7,37 @@ ARG GCC_VERSION
 
 # Step 1: Install dependencies for GCC building
 RUN yum update -y && \
-    yum groupinstall -y "Development Tools" && \
-    yum install -y \
-    wget \
-    tar \
-    bzip2 \
-    gcc \
-    gcc-c++ \
-    gmp-devel \
-    mpfr-devel \
-    libmpc-devel
+  yum groupinstall -y "Development Tools" && \
+  yum install -y \
+  wget \
+  tar \
+  bzip2 \
+  gcc \
+  gcc-c++ \
+  gmp-devel \
+  mpfr-devel \
+  libmpc-devel
 
 # Step 2: Download and unpack GCC source
-WORKDIR /opt
+WORKDIR /tmp
 RUN wget https://ftp.nluug.nl/languages/gcc/releases/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.gz && \
-    tar -xzf gcc-${GCC_VERSION}.tar.gz 
+  tar -xzf gcc-${GCC_VERSION}.tar.gz 
 
 # Step 3: Build GCC
-WORKDIR /opt/gcc-${GCC_VERSION}
+WORKDIR /tmp/gcc-${GCC_VERSION}
+
 RUN ./contrib/download_prerequisites && \
-    mkdir build && cd build && \
-    # Configure only for the C++ language
-    ../configure --disable-multilib --enable-languages=c++ --prefix=/opt/gcc-${GCC_VERSION} --disable-debug && \
-    make -j$(nproc) && \
-    make install && \
-    # Strip binaries to reduce size
-    strip --strip-all /opt/gcc-${GCC_VERSION}/bin/* && \
-    find /opt/gcc-${GCC_VERSION} -name 'lib*.so*' -exec strip --strip-unneeded {} + && \
-    # Remove static libraries and documentation
-    find /opt/gcc-${GCC_VERSION} -name '*.a' -delete && \
-    rm -rf /opt/gcc-${GCC_VERSION}/share/doc
+  mkdir build && cd build && \
+  # Configure only for the C++ language
+  ../configure --disable-multilib --enable-languages=c++ --prefix=/opt/gcc-${GCC_VERSION} --disable-debug && \
+  make -j$(nproc) && \
+  make install
+
+# Strip binaries to reduce size
+RUN strip --strip-all /opt/gcc-${GCC_VERSION}/bin/* && \
+  # Remove static libraries and documentation
+  find /opt/gcc-${GCC_VERSION} -name '*.a' -delete && \
+  rm -rf /opt/gcc-${GCC_VERSION}/share/doc
 
 
 # Final stage: assembling clean environment for runtime use with GCC
