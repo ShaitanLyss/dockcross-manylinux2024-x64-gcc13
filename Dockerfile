@@ -32,7 +32,7 @@ RUN ./contrib/download_prerequisites && \
   ../configure --disable-multilib --enable-languages=c++ --prefix=/opt/gcc-${GCC_VERSION} --disable-debug && \
   make -j$(nproc)
 
-RUN make install-strip
+RUN cd build && make install-strip
 
 # Final stage: assembling clean environment for runtime use with GCC
 FROM dockcross/manylinux2014-x64:latest
@@ -48,7 +48,7 @@ ENV PATH="/opt/gcc-${GCC_VERSION}/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/opt/gcc-${GCC_VERSION}/lib64:${LD_LIBRARY_PATH}"
 ENV CC=/opt/gcc-${GCC_VERSION}/bin/gcc
 ENV CXX=/opt/gcc-${GCC_VERSION}/bin/g++
-ENV LD=/opt/gcc-${GCC_VERSION}/bin/ld
+# ENV LD=/opt/gcc-${GCC_VERSION}/bin/ld
 
 COPY Toolchain.cmake ${CROSS_ROOT}/../lib/
 ENV CMAKE_TOOLCHAIN_FILE ${CROSS_ROOT}/../lib/Toolchain.cmake
